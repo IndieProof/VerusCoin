@@ -223,7 +223,7 @@ build:mac:
 ########################################################################################################################
 ####START####                             Run Verus CLI on Ubuntu Bionic (18.04)                           ####START####
 ########################################################################################################################
-.ubuntu:bionic:
+ubuntu:bionic:
   image: ubuntu:bionic
   variables:
     DOCKER_DRIVER: overlay2
@@ -315,9 +315,9 @@ deploy:
   variables:
     DOCKER_DRIVER: overlay2
   dependencies:
-  - build:linux
-  - build:windows
-  - build:mac
+    - build:linux
+    - build:windows
+    - build:mac
   script:
   - mkdir Windows && mkdir Linux && mkdir MacOS &&
     mv ${VERUS_CLI_WINDOWS} Windows &&
@@ -336,6 +336,38 @@ deploy:
       -F variables\[VERUS_CLI_WINDOWS\]="${CI_PROJECT_NAME}/${CI_COMMIT_REF_NAME}/Windows/${VERUS_CLI_WINDOWS}"
       -F variables\[VERUS_CLI_MACOS\]="${CI_PROJECT_NAME}/${CI_COMMIT_REF_NAME}/MacOS/${VERUS_CLI_MACOS}"
       "https://gitlab.com/api/v4/projects/10027007/trigger/pipeline"
+  artifacts:
+    - Windows
+    - Linux
+    - MacOS
+
+deploy:draft:
+  stage: deploy
+  image: appropriate/curl
+  only:
+    variables:
+      - ${CI_COMMIT_REF_NAME} == "master"
+  when: manual
+  variables:
+    DOCKER_DRIVER: overlay2
+  dependencies:
+    - deploy
+  script:
+    - curl --data
+      '{
+        "tag_name": ${VERSION},
+        "target_commitish": ${CI_COMMIT_REF_NAME},
+        "name": ${VERSION},
+        "body": "",
+        "draft": true,
+        "prerelease": false
+      }'
+      https://api.github.com/repos/:owner/:repository/releases?access_token=:your_access_token
+
+
+
+
+
 ########################################################################################################################
 ####END####                                           Deploy                                                 ####END####
 ########################################################################################################################

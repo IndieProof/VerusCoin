@@ -8,7 +8,7 @@ darwin_CXX=g++-6 -target $(host) -mmacosx-version-min=$(OSX_MIN_VERSION) --sysro
 darwin_CFLAGS=-pipe
 darwin_CXXFLAGS=$(darwin_CFLAGS)
 
-darwin_release_CFLAGS=-O3
+darwin_release_CFLAGS=-O0
 darwin_release_CXXFLAGS=$(darwin_release_CFLAGS)
 
 darwin_debug_CFLAGS=-O0
